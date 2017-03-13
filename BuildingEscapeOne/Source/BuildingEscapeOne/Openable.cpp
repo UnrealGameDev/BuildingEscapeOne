@@ -20,22 +20,30 @@ UOpenable::UOpenable()
 void UOpenable::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (!DependingSwitch)
+	
+	// Check component init values
+	if (DependingSwitches.Num() == 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No depending switch choosen for %s"), *GetOwner()->GetName());
 		return;
 	}
 
-	USwitchable* Switchable = DependingSwitch->FindComponentByClass<USwitchable>();
-	if (Switchable)
+	// Register EventHandler for every Switchable in Vector
+	for (auto& Switch : DependingSwitches)
 	{
-		Switchable->SwitchEvent.AddDynamic(this, &UOpenable::OnSwichtChange);
+		USwitchable* Switchable = Switch->FindComponentByClass<USwitchable>();
+		if (Switchable)
+		{
+			Switchable->SwitchEvent.AddDynamic(this, &UOpenable::OnSwichtChange);
+			ExpectedSwitchOrder.Add(DependingSwitches.Find(Switch)); // Rember order for later use (index based)
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No Switchable component found for %s assigned to %s"), *Switch->GetName(), *GetOwner()->GetName());
+		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No Switchable component found for %s assigned to %s"), *DependingSwitch->GetName(), *GetOwner()->GetName());
-	}
+
+	
 	
 	
 }
@@ -51,13 +59,51 @@ void UOpenable::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 
 void UOpenable::OnSwichtChange(AActor * SwitchingActor, bool SwitchState)
 {
+	// Update switch array (index based)
 	if (SwitchState)
 	{
-		OnOpen.Broadcast();
+		ActualSwitchOrder.Add(DependingSwitches.Find(SwitchingActor));
 	}
 	else
 	{
-		OnClose.Broadcast();
+		ActualSwitchOrder.Remove(DependingSwitches.Find(SwitchingActor));
+	}
+
+	// Check switching condition 
+	switch (SwitchingCondition)
+	{
+	case ESwitchingCondition::SingleOn:
+		if (ActualSwitchOrder.Num() >= 1)
+		{
+			OnOpen.Broadcast();
+		}
+		else
+		{
+			OnClose.Broadcast();
+		}
+		break;
+	case ESwitchingCondition::AllOn:
+		if (ActualSwitchOrder.Num() >= DependingSwitches.Num())
+		{
+			OnOpen.Broadcast();
+		}
+		else
+		{
+			OnClose.Broadcast();
+		}
+		break;
+	case ESwitchingCondition::AllOrderedOn:
+		if (ActualSwitchOrder == ExpectedSwitchOrder)
+		{
+			OnOpen.Broadcast();
+		}
+		else
+		{
+			OnClose.Broadcast();
+		}
+		break;
+	default:
+		break;
 	}
 }
 
