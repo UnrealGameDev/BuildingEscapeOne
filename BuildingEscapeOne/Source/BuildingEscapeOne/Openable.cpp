@@ -59,6 +59,13 @@ void UOpenable::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 
 void UOpenable::OnSwichtChange(AActor * SwitchingActor, bool SwitchState)
 {
+	TArray<int> FixedSwitchOrder;
+	FixedSwitchOrder.Add(1);
+	FixedSwitchOrder.Add(3);
+	FixedSwitchOrder.Add(4);
+	FixedSwitchOrder.Add(5);
+	FixedSwitchOrder.Add(7);
+	FixedSwitchOrder.Add(10);
 	// Update switch array (index based)
 	if (SwitchState)
 	{
@@ -94,6 +101,18 @@ void UOpenable::OnSwichtChange(AActor * SwitchingActor, bool SwitchState)
 		break;
 	case ESwitchingCondition::AllOrderedOn:
 		if (ActualSwitchOrder == ExpectedSwitchOrder)
+		{
+			OnOpen.Broadcast();
+		}
+		else
+		{
+			OnClose.Broadcast();
+		}
+		break;
+	case ESwitchingCondition::Fixed:
+		ActualSwitchOrder.Sort();
+		FixedSwitchOrder.Sort();
+		if (ActualSwitchOrder == FixedSwitchOrder)
 		{
 			OnOpen.Broadcast();
 		}

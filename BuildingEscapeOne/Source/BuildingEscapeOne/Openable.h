@@ -12,7 +12,8 @@ enum class ESwitchingCondition : uint8
 {
 	AllOn,
 	SingleOn,
-	AllOrderedOn
+	AllOrderedOn,
+	Fixed,
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOpenEvent);
