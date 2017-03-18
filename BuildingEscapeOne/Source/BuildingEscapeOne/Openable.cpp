@@ -57,6 +57,32 @@ void UOpenable::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 	// ...
 }
 
+void UOpenable::OpenActor()
+{
+	OnOpen.Broadcast();
+	for (auto& Switch : AffectedSwitches)
+	{
+		USwitchable* Switchable = Switch->FindComponentByClass<USwitchable>();
+		if (Switchable)
+		{
+			Switchable->SetSwitchState(true);
+		}
+	}
+}
+
+void UOpenable::CloseActor()
+{
+	OnClose.Broadcast();
+	for (auto& Switch : AffectedSwitches)
+	{
+		USwitchable* Switchable = Switch->FindComponentByClass<USwitchable>();
+		if (Switchable)
+		{
+			Switchable->SetSwitchState(false);
+		}
+	}
+}
+
 void UOpenable::OnSwichtChange(AActor * SwitchingActor, bool SwitchState)
 {
 	TArray<int> FixedSwitchOrder;
@@ -66,6 +92,7 @@ void UOpenable::OnSwichtChange(AActor * SwitchingActor, bool SwitchState)
 	FixedSwitchOrder.Add(5);
 	FixedSwitchOrder.Add(7);
 	FixedSwitchOrder.Add(10);
+
 	// Update switch array (index based)
 	if (SwitchState)
 	{
@@ -82,31 +109,31 @@ void UOpenable::OnSwichtChange(AActor * SwitchingActor, bool SwitchState)
 	case ESwitchingCondition::SingleOn:
 		if (ActualSwitchOrder.Num() >= 1)
 		{
-			OnOpen.Broadcast();
+			OpenActor();
 		}
 		else
 		{
-			OnClose.Broadcast();
+			CloseActor();
 		}
 		break;
 	case ESwitchingCondition::AllOn:
 		if (ActualSwitchOrder.Num() >= DependingSwitches.Num())
 		{
-			OnOpen.Broadcast();
+			OpenActor();
 		}
 		else
 		{
-			OnClose.Broadcast();
+			CloseActor();
 		}
 		break;
 	case ESwitchingCondition::AllOrderedOn:
 		if (ActualSwitchOrder == ExpectedSwitchOrder)
 		{
-			OnOpen.Broadcast();
+			OpenActor();
 		}
 		else
 		{
-			OnClose.Broadcast();
+			CloseActor();
 		}
 		break;
 	case ESwitchingCondition::Fixed:
@@ -114,11 +141,11 @@ void UOpenable::OnSwichtChange(AActor * SwitchingActor, bool SwitchState)
 		FixedSwitchOrder.Sort();
 		if (ActualSwitchOrder == FixedSwitchOrder)
 		{
-			OnOpen.Broadcast();
+			OpenActor();
 		}
 		else
 		{
-			OnClose.Broadcast();
+			CloseActor();
 		}
 		break;
 	default:

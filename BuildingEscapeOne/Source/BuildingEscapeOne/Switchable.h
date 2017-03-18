@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SwitchState")
 	void ChangeSwitchState();
 
+	// Setter for SwitchState
+	void SetSwitchState(bool State);
+
 	// Propage switch changes by eventsystem
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Level Events")
 	FSwitchEvent SwitchEvent;

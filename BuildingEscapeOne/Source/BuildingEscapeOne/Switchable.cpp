@@ -40,3 +40,9 @@ void USwitchable::ChangeSwitchState()
 	SwitchEvent.Broadcast(GetOwner(), SwitchState);
 }
 
+void USwitchable::SetSwitchState(bool State)
+{
+	SwitchState = State;
+	SwitchEvent.Broadcast(GetOwner(), SwitchState);
+}
+

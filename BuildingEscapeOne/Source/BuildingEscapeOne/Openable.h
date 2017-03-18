@@ -33,12 +33,17 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
+	// Make the switching condition editable
 	UPROPERTY(EditAnywhere)
 	ESwitchingCondition SwitchingCondition = ESwitchingCondition::SingleOn;
 
-	// Multiple depending switch can be chosen from Editor
+	// Multiple depending switches can be chosen from Editor (combined to open)
 	UPROPERTY(EditAnywhere)
 	TArray<AActor*> DependingSwitches;
+
+	// Multiple affected switches can be chosen from Editor (switcht if opened)
+	UPROPERTY(EditAnywhere)
+	TArray<AActor*> AffectedSwitches;
 
 	// Generate event if opened (used in BluePrint)
 	UPROPERTY(BlueprintAssignable)
@@ -58,5 +63,11 @@ private:
 
 	// Holds the actual active switches (could be used for switching checks)
 	TArray<int>	ActualSwitchOrder;
+
+	// Helper function called if open conditions are true
+	void OpenActor();
+
+	// Helper function called if close conditions are true
+	void CloseActor();
 	
 };
