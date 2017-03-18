@@ -53,6 +53,7 @@ void UManipulator::BindInputToActions()
 	if (InputComponent)
 	{
 		InputComponent->BindAction(FName("Manipulate"), EInputEvent::IE_Pressed, this, &UManipulator::Manipulate);
+		InputComponent->BindAction(FName("GameExit"), EInputEvent::IE_Pressed, this, &UManipulator::ExitGame);
 	}
 	else
 	{
@@ -88,4 +89,11 @@ FHitResult UManipulator::GetFirstPhysicsBodyInReach()
 	);
 
 	return HitResult;
+}
+
+void UManipulator::ExitGame() 
+{
+	UE_LOG(LogTemp, Error, TEXT("Exiting the Game now!"));
+	//FGenericPlatformMisc::RequestExit(true);
+	GetWorld()->GetFirstPlayerController()->ConsoleCommand("quit");
 }

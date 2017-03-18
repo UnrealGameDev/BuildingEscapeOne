@@ -42,5 +42,8 @@ private:
 
 	// Helper funktion to determine the manipulatable actor
 	FHitResult GetFirstPhysicsBodyInReach();
+
+	// Just a hack to exit the game by keypress
+	void ExitGame();
 	
 };
